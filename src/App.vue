@@ -1,30 +1,48 @@
 <template>
-    <div class="flex gap-2">
-        <div class="m-4">
-            <textarea class="textarea" v-model="inputField"></textarea>
-            <div class="flex flex-row gap-2 mt-2">
-                <div class="flex flex-col">
-                    <textarea class="textarea" v-model="stringifiedGeoJson" disabled></textarea>
-                    <button @click="downloadGeojson" :disabled="!isValid" class="btn btn-primary">Download geoJSON</button>
+    <div class="flex h-screen">
+        <div class="w-1/2 h-full flex flex-col p-2 gap-2">
+            <!-- Input Field -->
+            <div class="h-1/4">
+                <textarea
+                    class="w-full h-full border border-gray-300 rounded-md p-2 resize-none"
+                    v-model="inputField"
+                    placeholder="Enter GeoJSON or WKT..."
+                ></textarea>
+            </div>
+
+            <!-- Parsed GeoJSON and WKT -->
+            <div class="flex h-2/3">
+                <div class="w-1/2 h-full p-2 flex flex-col gap-2">
+                    <h2 class="text-lg font-bold">GeoJSON</h2>
+                    <textarea
+                        class="w-full h-full border border-gray-300 rounded-md p-1 resize-none"
+                        v-model="stringifiedGeoJson"
+                        disabled
+                    ></textarea>
+                    <button @click="downloadGeojson" :disabled="!isValid" class="btn btn-primary w-full">Download geoJSON</button>
                 </div>
-                <div class="flex flex-col">
-                    <textarea class="textarea" v-model="parsedWkt" disabled></textarea>
-                    <button @click="downloadWkt" :disabled="!isValid" class="btn btn-primary">Download WKT</button>
+                <div class="w-1/2 h-full p-2 flex flex-col gap-2">
+                    <h2 class="text-lg font-bold">WKT (Well Known Text)</h2>
+                    <textarea class="w-full h-full border border-gray-300 rounded-md p-1 resize-none" v-model="parsedWkt" disabled></textarea>
+                    <button @click="downloadWkt" :disabled="!isValid" class="btn btn-primary w-full">Download WKT</button>
                 </div>
             </div>
         </div>
 
-        <div class="overflow-hidden rounded-lg m-4" style="height: 50vh; width: 50vw">
-            <LMap ref="map" :center="[55, -3]" :zoom="6" :minZoom="5" @ready="onMapReady">
-                <LTileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&amp;copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-                    layer-type="base"
-                    name="OpenStreetMap"
-                />
+        <!-- Map -->
+        <div class="w-1/2 h-full p-2 border-l border-gray-300">
+            <div class="overflow-hidden rounded-lg h-full">
+                <LMap ref="map" :center="[55, -3]" :zoom="6" :minZoom="5" @ready="onMapReady">
+                    <LTileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&amp;copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+                        layer-type="base"
+                        name="OpenStreetMap"
+                    />
 
-                <LGeoJson v-if="parsedGeoJson" :geojson="parsedGeoJson" :options-style="geoStyler" />
-            </LMap>
+                    <LGeoJson v-if="parsedGeoJson" :geojson="parsedGeoJson" :options-style="geoStyler" />
+                </LMap>
+            </div>
         </div>
     </div>
 </template>
@@ -59,7 +77,6 @@ function tryParseGeojson(input: string): Feature | Geometry | null {
     try {
         const parsedInput = JSON.parse(input);
         parsedGeoJson.value = parsedInput;
-        isValid.value = true;
         return parsedInput;
     } catch (error) {
         isValid.value = false;
@@ -83,7 +100,7 @@ watch(inputField, () => {
     tryParseWkt(inputField.value);
 });
 
-const isValid = ref(false);
+const isValid = computed(() => parsedGeoJson.value);
 
 function downloadFile(content: string, extension: string) {
     const blob = new Blob([content], { type: "application/json" });
