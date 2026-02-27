@@ -12,21 +12,20 @@
 
             <!-- Parsed GeoJSON and WKT -->
             <div class="flex h-2/3">
-                <div class="flex-1 h-full p-2 flex flex-col gap-2">
+                <div class="flex-1 h-5/6 p-2 flex flex-col gap-2">
                     <h2 class="text-lg font-bold">GeoJSON</h2>
                     <div class="relative h-full">
                         <button
-                            v-if="stringifiedGeoJson"
+                            v-if="parsedGeoJson"
                             @click="copyToClipboard(stringifiedGeoJson)"
                             class="btn btn-neutral btn-outline absolute top-3 right-5 z-10"
                         >
                             Copy
                         </button>
-                        <textarea
-                            class="w-full h-full border border-gray-300 bg-base-100 rounded-md resize-none p-2"
-                            v-model="stringifiedGeoJson"
-                            disabled
-                        ></textarea>
+                        <vue-json-pretty
+                            class="w-full h-full border border-gray-300 bg-base-100 rounded-md p-2 overflow-y-auto"
+                            :data="parsedGeoJson"
+                        />
                     </div>
                     <button @click="downloadGeojson" :disabled="!isValid" class="btn btn-primary w-full">Download</button>
                 </div>
@@ -71,6 +70,8 @@ import { ref, computed, watch } from "vue";
 import { geojsonToWkt, wktToGeojson } from "wkt-parser-helper";
 import { LMap, LTileLayer, LGeoJson } from "@maxel01/vue-leaflet";
 import type { Feature, Geometry } from "geojson";
+import VueJsonPretty from "vue-json-pretty";
+import "vue-json-pretty/lib/styles.css";
 
 const map = ref(null);
 const onMapReady = () => {
