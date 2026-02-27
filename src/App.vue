@@ -1,8 +1,8 @@
 <template>
     <div class="flex h-screen bg-base-300">
-        <div class="w-1/2 h-full flex flex-col p-2 gap-2">
+        <div class="w-1/2 h-full flex flex-col gap-10">
             <!-- Input Field -->
-            <div class="h-1/4">
+            <div class="h-1/4 p-2">
                 <textarea
                     class="w-full h-full border border-gray-300 rounded-md bg-base-100 p-2 resize-none"
                     v-model="inputField"
@@ -115,6 +115,11 @@ function tryParseWkt(input: string): Feature | Geometry | null {
 }
 
 watch(inputField, () => {
+    if (inputField.value === "") {
+        parsedGeoJson.value = null;
+        return;
+    }
+
     tryParseGeojson(inputField.value);
     tryParseWkt(inputField.value);
 });
