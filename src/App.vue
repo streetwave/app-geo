@@ -2,7 +2,11 @@
     <div class="flex h-screen bg-base-300">
         <div class="w-1/2 h-full flex flex-col gap-10">
             <!-- Input Field -->
-            <div class="h-1/4 p-2">
+            <div class="h-1/4 p-2 flex flex-col gap-1">
+                <label class="btn btn-outline">
+                    <input type="file" class="hidden" @change="handleFileUpload" />
+                    Open from File
+                </label>
                 <textarea
                     :class="[
                         'textarea w-full h-full rounded-md bg-base-100 resize-none',
@@ -30,7 +34,7 @@
                             :data="parsedGeoJson"
                         />
                     </div>
-                    <button @click="downloadGeojson" :disabled="!isValid" class="btn btn-primary w-full">Download</button>
+                    <button @click="downloadGeojson" :disabled="!isValid" class="btn btn-primary btn-outline w-full">Download</button>
                 </div>
 
                 <div class="flex-1 h-full p-2 flex flex-col gap-2">
@@ -45,7 +49,7 @@
                             disabled
                         ></textarea>
                     </div>
-                    <button @click="downloadWkt" :disabled="!isValid" class="btn btn-primary w-full">Download</button>
+                    <button @click="downloadWkt" :disabled="!isValid" class="btn btn-primary btn-outline w-full">Download</button>
                 </div>
             </div>
         </div>
@@ -157,5 +161,16 @@ function downloadWkt() {
 function copyToClipboard(content: string) {
     if (!content) return;
     navigator.clipboard.writeText(content);
+}
+
+function handleFileUpload(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            inputField.value = e.target?.result as string;
+        };
+        reader.readAsText(file);
+    }
 }
 </script>
