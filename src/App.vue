@@ -4,7 +4,10 @@
             <!-- Input Field -->
             <div class="h-1/4 p-2">
                 <textarea
-                    class="w-full h-full border border-gray-300 rounded-md bg-base-100 p-2 resize-none"
+                    :class="[
+                        'textarea w-full h-full rounded-md bg-base-100 resize-none',
+                        isValid === true ? 'textarea-success' : isValid === false ? 'textarea-error' : '',
+                    ]"
                     v-model="inputField"
                     placeholder="Enter GeoJSON or WKT..."
                 ></textarea>
@@ -96,10 +99,9 @@ const parsedWkt = computed(() => {
 function tryParseGeojson(input: string): Feature | Geometry | null {
     try {
         const parsedInput = JSON.parse(input);
-        parsedGeoJson.value = parsedInput;
         return parsedInput;
     } catch (error) {
-        isValid.value = false;
+        parsedGeoJson.value = null;
         return null;
     }
 }
@@ -107,10 +109,9 @@ function tryParseGeojson(input: string): Feature | Geometry | null {
 function tryParseWkt(input: string): Feature | Geometry | null {
     try {
         const geoJsonConversion = wktToGeojson(input);
-        parsedGeoJson.value = geoJsonConversion;
         return geoJsonConversion;
     } catch (error) {
-        isValid.value = false;
+        parsedGeoJson.value = null;
         return null;
     }
 }
@@ -121,11 +122,21 @@ watch(inputField, () => {
         return;
     }
 
-    tryParseGeojson(inputField.value);
-    tryParseWkt(inputField.value);
+    const resultGeojson = tryParseGeojson(inputField.value);
+    const resultWkt = tryParseWkt(inputField.value);
+    if (resultGeojson || resultWkt) {
+        parsedGeoJson.value = resultGeojson || resultWkt;
+    } else {
+        parsedGeoJson.value = null;
+    }
 });
 
-const isValid = computed(() => parsedGeoJson.value);
+const isValid = computed(() => {
+    if (inputField.value === "") {
+        return null;
+    }
+    return parsedGeoJson.value !== null;
+});
 
 function downloadFile(content: string, extension: string) {
     const blob = new Blob([content], { type: "application/json" });
