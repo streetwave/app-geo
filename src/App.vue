@@ -1,10 +1,10 @@
 <template>
-    <div class="flex h-screen">
+    <div class="flex h-screen bg-base-300">
         <div class="w-1/2 h-full flex flex-col p-2 gap-2">
             <!-- Input Field -->
             <div class="h-1/4">
                 <textarea
-                    class="w-full h-full border border-gray-300 rounded-md p-2 resize-none"
+                    class="w-full h-full border border-gray-300 rounded-md bg-base-100 p-2 resize-none"
                     v-model="inputField"
                     placeholder="Enter GeoJSON or WKT..."
                 ></textarea>
@@ -12,19 +12,38 @@
 
             <!-- Parsed GeoJSON and WKT -->
             <div class="flex h-2/3">
-                <div class="w-1/2 h-full p-2 flex flex-col gap-2">
+                <div class="flex-1 h-full p-2 flex flex-col gap-2">
                     <h2 class="text-lg font-bold">GeoJSON</h2>
-                    <textarea
-                        class="w-full h-full border border-gray-300 rounded-md p-1 resize-none"
-                        v-model="stringifiedGeoJson"
-                        disabled
-                    ></textarea>
-                    <button @click="downloadGeojson" :disabled="!isValid" class="btn btn-primary w-full">Download geoJSON</button>
+                    <div class="relative h-full">
+                        <button
+                            v-if="stringifiedGeoJson"
+                            @click="copyToClipboard(stringifiedGeoJson)"
+                            class="btn btn-neutral btn-outline absolute top-3 right-5 z-10"
+                        >
+                            Copy
+                        </button>
+                        <textarea
+                            class="w-full h-full border border-gray-300 bg-base-100 rounded-md resize-none p-2"
+                            v-model="stringifiedGeoJson"
+                            disabled
+                        ></textarea>
+                    </div>
+                    <button @click="downloadGeojson" :disabled="!isValid" class="btn btn-primary w-full">Download</button>
                 </div>
-                <div class="w-1/2 h-full p-2 flex flex-col gap-2">
+
+                <div class="flex-1 h-full p-2 flex flex-col gap-2">
                     <h2 class="text-lg font-bold">WKT (Well Known Text)</h2>
-                    <textarea class="w-full h-full border border-gray-300 rounded-md p-1 resize-none" v-model="parsedWkt" disabled></textarea>
-                    <button @click="downloadWkt" :disabled="!isValid" class="btn btn-primary w-full">Download WKT</button>
+                    <div class="relative h-full">
+                        <button v-if="parsedWkt" @click="copyToClipboard(parsedWkt)" class="btn btn-neutral btn-outline absolute top-3 right-5 z-10">
+                            Copy
+                        </button>
+                        <textarea
+                            class="w-full h-full border border-gray-300 bg-base-100 rounded-md resize-none p-2"
+                            v-model="parsedWkt"
+                            disabled
+                        ></textarea>
+                    </div>
+                    <button @click="downloadWkt" :disabled="!isValid" class="btn btn-primary w-full">Download</button>
                 </div>
             </div>
         </div>
@@ -116,5 +135,10 @@ function downloadGeojson() {
 }
 function downloadWkt() {
     downloadFile(parsedWkt.value, "wkt");
+}
+
+function copyToClipboard(content: string) {
+    if (!content) return;
+    navigator.clipboard.writeText(content);
 }
 </script>
