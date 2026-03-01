@@ -23,7 +23,7 @@
                     <h2 class="text-lg font-bold">GeoJSON</h2>
                     <div class="relative h-full">
                         <button
-                            v-if="parsedGeoJson"
+                            v-if="stringifiedGeoJson"
                             @click="copyToClipboard(stringifiedGeoJson)"
                             class="btn btn-neutral btn-outline absolute top-3 right-5 z-10"
                         >
@@ -80,11 +80,11 @@ import type { Feature, Geometry } from "geojson";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 
-const map = ref(null);
+const map = ref<InstanceType<typeof LMap> | null>(null);
 const onMapReady = () => {
-    map.value.leafletObject.invalidateSize();
+    map.value?.leafletObject?.invalidateSize();
 };
-const geoStyler = (feature) => ({
+const geoStyler = (feature: any) => ({
     opacity: feature.properties.code / 100000,
 });
 
@@ -152,10 +152,14 @@ function downloadFile(content: string, extension: string) {
     URL.revokeObjectURL(url);
 }
 function downloadGeojson() {
-    downloadFile(stringifiedGeoJson.value, "geojson");
+    if (stringifiedGeoJson.value) {
+        downloadFile(stringifiedGeoJson.value, "geojson");
+    }
 }
 function downloadWkt() {
-    downloadFile(parsedWkt.value, "wkt");
+    if (parsedWkt.value) {
+        downloadFile(parsedWkt.value, "wkt");
+    }
 }
 
 function copyToClipboard(content: string) {

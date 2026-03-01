@@ -1,0 +1,13 @@
+{
+  "name": "app-geo",
+  "compatibility_date": "2026-03-01",
+  "assets": {
+    "directory": "./dist"
+  },
+  "routes": [
+    {
+      "pattern": "geo.streetwave.xyz",
+      "custom_domain": true
+    }
+  ],
+}
